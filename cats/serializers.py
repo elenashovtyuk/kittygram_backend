@@ -13,6 +13,7 @@ import datetime as dt
 # импортируем нужные модели
 from .models import Achievement, AchievementCat, Cat
 
+
 # создаем новый тип поля, унаследованный от базового Field
 # в нем два метода - для чтения и для записи
 class Hex2NameColor(serializers.Field):
@@ -20,6 +21,7 @@ class Hex2NameColor(serializers.Field):
     def to_representation(self, value):
         return value
     # При записи код цвета конвертируется в его название
+
     def to_internal_value(self, data):
         # проверяем
         # Если имя цвета существует, то конвертируем код в название
@@ -39,6 +41,7 @@ class AchievementSerializer(serializers.ModelSerializer):
         model = Achievement
         fields = ('id', 'achievement_name')
 
+
 # создаем кастомный тип поля, унаследованный от ImageField
 class Base64ImageField(serializers.ImageField):
     # в нем переопределяем метод 'to_internal_value' -
@@ -54,18 +57,22 @@ class Base64ImageField(serializers.ImageField):
             # format - это спецификацию типа, формат данных
             # и imgstr - это закодированное содержимое файла
             format, imgstr = data.split(';base64,')
-            # из первой части, полученной при делении далее извлекаем расширение файла
+            # из первой части, полученной при делении
+            # далее извлекаем расширение файла
             ext = format.split('/')[-1]
-            # Затем декодируем сами данные из второй части полученной при делении
-            # и помещаем результат в файл,
+            # Затем декодируем сами данные из второй части
+            # полученной при делении и помещаем результат в файл,
             # которому даем название по шаблону.
             # для этого используем класс ContentFile,где
-            # первым параметром указываем функцию декодирования из модуля base64
+            # первым параметром указываем функцию декодирования
+            # из модуля base64
             # декодируем imgstr - закодированное содержимое файла
-            # вторым парамметром указываем имя файлу, которому даем название по шаблону + расширение
+            # вторым парамметром указываем имя файлу, которому даем название
+            # по шаблону + расширение
             data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
 
         return super().to_internal_value(data)
+
 
 # в сериализаторе для модели Cat для полей color и image
 # задем новые кастомнеы типы полей, которые создали выше
@@ -107,10 +114,12 @@ class CatSerializer(serializers.ModelSerializer):
                     achievement=current_achievement, cat=cat
                     )
             return cat
+
     # В сериализатор также был добавлен метод update,
     # который отвечает за обновление данных о котиках:
     # то есть, добавляем возможность изменять уже существующие записи
-    # в этот метод передаем ссылку на объект instance (объект модели Cat), который нужно изменить
+    # в этот метод передаем ссылку на объект instance (объект модели Cat),
+    # который нужно изменить
     # и validated_data - словарь с проверенными данными
     def update(self, instance, validated_data):
         # воспользовавшись django ORM указываем instance.name,
@@ -120,8 +129,8 @@ class CatSerializer(serializers.ModelSerializer):
         # по какой-то причине этот ключ не был найден в словаре, то
         # вернем тот name, который уже есть в модели Cat
         instance.name = validated_data.get('name', instance.name)
-        # аналогично со всеми остальными значениями полей, которые нужно изменить
-        # для поля color
+        # аналогично со всеми остальными значениями полей,
+        # которые нужно изменить для поля color
         instance.color = validated_data.get('color', instance.color)
         # для поля birth_year
         instance.birth_year = validated_data.get(
@@ -130,7 +139,8 @@ class CatSerializer(serializers.ModelSerializer):
         # для поля image
         instance.image = validated_data.get('image', instance.image)
         # для поля с достижениями котиков делаем следующую проверку:
-        # если в словаре с проверенными данными есть достижения(ключ 'achievements')
+        # если в словаре с проверенными данными есть достижения
+        # (ключ 'achievements')
         if 'achievements' in validated_data:
             # то мы удаляем эти достижения из словаря с проверенными данными
             #  и сохраняем их в переменную achievements_data
