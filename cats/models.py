@@ -14,16 +14,24 @@ class Achievement(models.Model):
 
 class Cat(models.Model):
     name = models.CharField(max_length=16)
+
+    # поле для цвета меняем на CharField
+    # Несмотря на то, что цвет в формате hex описывается
+    # максимум шестью символами,
+    # оставим max_length=16: ведь в базе
+    # уже могут быть сохранены старые и длинные названия цветов.
     color = models.CharField(max_length=16)
     birth_year = models.IntegerField()
     owner = models.ForeignKey(
-        User, related_name='cats', 
-        on_delete=models.CASCADE
-        )
-    achievements = models.ManyToManyField(Achievement, through='AchievementCat')
+        User, related_name='cats',
+        on_delete=models.CASCADE)
+    achievements = models.ManyToManyField(
+        Achievement, through='AchievementCat')
+
+    # добавлено новое необязательное поле для хранения картинок котиков
     image = models.ImageField(
-        upload_to='cats/images/', 
-        null=True,  
+        upload_to='cats/images/',
+        null=True,
         default=None
         )
 
